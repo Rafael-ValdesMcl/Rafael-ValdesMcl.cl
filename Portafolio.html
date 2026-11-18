@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tu Nombre — Diseño y Modelado 3D</title>
+<meta name="description" content="Portafolio de diseño: modelado 3D de figuras y componentes mecánicos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;800;900&family=Overpass+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --white:#FFFFFF;
+    --snow:#F6F6F4;
+    --red:#D01012;
+    --red-dark:#A50D0F;
+    --yellow:#FFCF00;
+    --blue:#0055BF;
+    --black:#1B1B1B;
+    --grey:#6B6B6B;
+    --radius:14px;
+    --font:'Overpass', system-ui, sans-serif;
+    --mono:'Overpass Mono', 'Overpass', monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--font);color:var(--black);background:var(--white);line-height:1.5}
+  a{color:inherit}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+  .label{font-family:var(--mono);font-size:.8rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+
+  /* Fila de "studs" como separador */
+  .studs{height:22px;background:
+    radial-gradient(circle at 20px 11px, var(--red) 8px, var(--red-dark) 9px, transparent 10px) 0 0/40px 22px repeat-x;}
+
+  /* NAV */
+  nav{position:sticky;top:0;z-index:10;background:var(--white);border-bottom:4px solid var(--red)}
+  nav .wrap{display:flex;justify-content:space-between;align-items:center;height:70px}
+  .logo{display:flex;align-items:center;gap:12px;text-decoration:none;font-weight:900;font-size:1.25rem;letter-spacing:-.01em}
+  .logo .brick{width:42px;height:30px;background:var(--red);border-radius:6px;position:relative;margin-top:6px}
+  .logo .brick::before,.logo .brick::after{content:"";position:absolute;top:-7px;width:12px;height:7px;background:var(--red);border-radius:3px 3px 0 0}
+  .logo .brick::before{left:7px}.logo .brick::after{right:7px}
+  nav ul{list-style:none;display:flex;gap:8px}
+  nav ul a{text-decoration:none;font-weight:600;padding:8px 14px;border-radius:999px;transition:background .15s,color .15s}
+  nav ul a:hover{background:var(--red);color:var(--white)}
+
+  /* HERO */
+  .hero{padding:72px 0 80px}
+  .hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+  .pill{display:inline-flex;align-items:center;gap:10px;background:var(--yellow);padding:8px 16px;border-radius:999px}
+  .pill i{width:10px;height:10px;border-radius:50%;background:var(--red);display:block}
+  h1{font-size:clamp(2.8rem,6.4vw,5.4rem);line-height:.95;font-weight:900;letter-spacing:-.035em;margin:24px 0}
+  h1 span{color:var(--red)}
+  .lead{font-size:1.2rem;color:var(--grey);max-width:500px}
+  .btns{display:flex;gap:14px;margin-top:34px;flex-wrap:wrap}
+  .btn{font-weight:800;font-size:1rem;padding:15px 26px;border-radius:12px;text-decoration:none;border:3px solid var(--black);background:var(--white);
+    box-shadow:0 5px 0 var(--black);transition:transform .12s, box-shadow .12s;display:inline-block}
+  .btn:hover{transform:translateY(3px);box-shadow:0 2px 0 var(--black)}
+  .btn.red{background:var(--red);color:var(--white)}
+
+  .hero-art{background:var(--red);border-radius:28px;aspect-ratio:1/1;position:relative;overflow:hidden}
+  .hero-art svg{width:100%;height:100%;display:block}
+  .spin{transform-box:fill-box;transform-origin:center;animation:spin 16s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .float{animation:float 4s ease-in-out infinite}
+  .float.d2{animation-delay:-1.3s}.float.d3{animation-delay:-2.6s}
+  @keyframes float{50%{transform:translateY(-8px)}}
+
+  /* SECTIONS */
+  section{padding:96px 0}
+  .alt{background:var(--snow)}
+  .sec-head{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:44px;flex-wrap:wrap}
+  .sec-head .label{color:var(--red)}
+  h2{font-size:clamp(2.2rem,4.4vw,3.4rem);font-weight:900;letter-spacing:-.03em;line-height:1;margin-top:8px}
+
+  /* FILTERS */
+  .filters{display:flex;gap:10px;flex-wrap:wrap}
+  .filters button{font-family:var(--font);font-weight:800;font-size:.95rem;padding:10px 18px;border-radius:999px;border:3px solid var(--black);background:var(--white);cursor:pointer}
+  .filters button.on{background:var(--black);color:var(--white)}
+
+  /* PROJECT CARDS */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+  .card{background:var(--white);border:3px solid var(--black);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;
+    box-shadow:0 6px 0 var(--black);transition:transform .15s, box-shadow .15s}
+  .card:hover{transform:translateY(-4px);box-shadow:0 10px 0 var(--black)}
+  .card.hide{display:none}
+  .render{aspect-ratio:4/3;position:relative;background:var(--snow);border-bottom:3px solid var(--black);display:grid;place-items:center}
+  .render img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0}
+  .render .ph{color:var(--grey)}
+  .chip{position:absolute;top:12px;left:12px;padding:5px 12px;border-radius:999px;color:var(--white);font-size:.75rem}
+  .chip.mec{background:var(--blue)}
+  .chip.fig{background:var(--red)}
+  .card-body{padding:20px 20px 18px}
+  .card-body h3{font-size:1.35rem;font-weight:800;letter-spacing:-.01em;margin-bottom:6px}
+  .card-body p{color:var(--grey);font-size:.98rem}
+  .specs{display:flex;gap:8px;flex-wrap:wrap;padding:0 20px 20px;margin-top:auto}
+  .specs span{background:var(--snow);border-radius:8px;padding:6px 10px;font-size:.78rem;font-family:var(--mono)}
+
+  /* PROCESS — bloques de colores */
+  .process{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+  .step{border-radius:var(--radius);padding:30px 24px 26px;position:relative;margin-top:14px}
+  .step::before{content:"";position:absolute;top:-14px;left:24px;width:96px;height:14px;
+    background:radial-gradient(circle at 12px 14px, currentColor 11px, transparent 12px) 0 0/36px 14px repeat-x}
+  .step .n{font-family:var(--mono);font-weight:600;font-size:.9rem;opacity:.85}
+  .step h3{font-size:1.5rem;font-weight:900;margin:10px 0 8px}
+  .s1{background:var(--red);color:var(--white)}
+  .s1::before{color:var(--red)}
+  .s2{background:var(--yellow);color:var(--black)}
+  .s2::before{color:var(--yellow)}
+  .s3{background:var(--blue);color:var(--white)}
+  .s3::before{color:var(--blue)}
+  .s4{background:var(--black);color:var(--white)}
+  .s4::before{color:var(--black)}
+
+  .tools-title{margin:64px 0 18px;color:var(--grey)}
+  .tools{display:flex;flex-wrap:wrap;gap:12px}
+  .tool{background:var(--white);border:3px solid var(--black);border-radius:12px;padding:12px 18px;font-weight:800}
+  .tool small{font-family:var(--mono);font-weight:400;color:var(--grey);margin-left:8px;font-size:.75rem}
+
+  /* ABOUT */
+  .about{display:grid;grid-template-columns:.8fr 1.2fr;gap:56px;align-items:center}
+  .portrait{aspect-ratio:3/4;border-radius:24px;background:var(--snow);border:3px solid var(--black);display:grid;place-items:center;color:var(--grey);position:relative}
+  .portrait::after{content:"";position:absolute;right:-18px;bottom:-18px;width:90px;height:90px;background:var(--yellow);border-radius:18px;z-index:-1}
+  .about p{font-size:1.15rem;margin-top:18px}
+  .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px}
+  .facts div{border-radius:var(--radius);padding:18px 20px;background:var(--snow)}
+  .facts b{display:block;font-size:2.4rem;font-weight:900;color:var(--red);line-height:1}
+  .facts span{color:var(--grey);font-weight:600}
+
+  /* CONTACT */
+  .contact{background:var(--red);color:var(--white);text-align:center;padding:110px 0}
+  .contact .label{color:var(--yellow)}
+  .contact h2{font-size:clamp(2.6rem,6.5vw,5rem);margin:14px 0 0}
+  .contact-links{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:40px}
+  .contact .btn{border-color:var(--white);background:var(--white);color:var(--red);box-shadow:0 5px 0 var(--red-dark)}
+  .contact .btn:hover{box-shadow:0 2px 0 var(--red-dark)}
+  .contact .btn.y{background:var(--yellow);color:var(--black);border-color:var(--yellow)}
+  footer{background:var(--black);color:#BDBDBD;padding:24px 0}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+  @media (max-width:900px){
+    .hero .wrap,.about{grid-template-columns:1fr}
+    .grid,.process{grid-template-columns:1fr 1fr}
+    nav ul{display:none}
+  }
+  @media (max-width:560px){
+    .grid,.process,.facts{grid-template-columns:1fr}
+  }
+  @media (prefers-reduced-motion:reduce){.spin,.float{animation:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a href="#" class="logo"><span class="brick"></span>Tu Nombre</a>
+    <ul>
+      <li><a href="#proyectos">Proyectos</a></li>
+      <li><a href="#proceso">Proceso</a></li>
+      <li><a href="#sobre-mi">Sobre mí</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <span class="pill label"><i></i>Estudiante de diseño · Modelado 3D</span>
+      <h1>Diseño que se <span>construye</span> pieza por pieza.</h1>
+      <p class="lead">Modelo figuras y componentes mecánicos en 3D, desde el boceto hasta el render final o la pieza impresa.</p>
+      <div class="btns">
+        <a href="#proyectos" class="btn red">Ver proyectos</a>
+        <a href="#contacto" class="btn">Hablemos</a>
+      </div>
+    </div>
+
+    <div class="hero-art" aria-hidden="true">
+      <svg viewBox="0 0 400 400">
+        <!-- engranaje blanco -->
+        <g class="spin"><path id="gear" fill="#FFFFFF" d=""/></g>
+        <circle cx="270" cy="130" r="24" fill="#D01012"/>
+        <circle cx="270" cy="130" r="10" fill="#FFFFFF"/>
+
+        <!-- ladrillos apilados -->
+        <g class="float">
+          <g fill="#FFCF00">
+            <rect x="60" y="300" width="200" height="56" rx="6"/>
+            <rect x="78" y="288" width="28" height="14" rx="3"/><rect x="126" y="288" width="28" height="14" rx="3"/>
+            <rect x="174" y="288" width="28" height="14" rx="3"/><rect x="222" y="288" width="28" height="14" rx="3"/>
+          </g>
+        </g>
+        <g class="float d2">
+          <g fill="#FFFFFF">
+            <rect x="110" y="226" width="150" height="56" rx="6"/>
+            <rect x="128" y="214" width="28" height="14" rx="3"/><rect x="176" y="214" width="28" height="14" rx="3"/>
+            <rect x="224" y="214" width="28" height="14" rx="3"/>
+          </g>
+        </g>
+        <g class="float d3">
+          <g fill="#0055BF">
+            <rect x="60" y="152" width="100" height="56" rx="6"/>
+            <rect x="78" y="140" width="28" height="14" rx="3"/><rect x="126" y="140" width="28" height="14" rx="3"/>
+          </g>
+        </g>
+        <g class="float">
+          <g fill="#1B1B1B">
+            <rect x="286" y="300" width="52" height="56" rx="6"/>
+            <rect x="298" y="288" width="28" height="14" rx="3"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<div class="studs"></div>
+
+<section id="proyectos">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="label">01 — Proyectos</p>
+        <h2>Trabajo seleccionado</h2>
+      </div>
+      <div class="filters" role="group" aria-label="Filtrar proyectos">
+        <button class="on" data-f="todos">Todos</button>
+        <button data-f="mecanico">Mecánicos</button>
+        <button data-f="figura">Figuras</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Para cambiar un proyecto: reemplaza el texto y agrega tu imagen con <img src="img/archivo.jpg" alt="..."> dentro de .render -->
+      <article class="card" data-cat="mecanico">
+        <div class="render"><span class="chip mec label">Mecánico</span><span class="ph label">Render del proyecto</span></div>
+        <div class="card-body"><h3>Reductor planetario</h3><p>Conjunto de engranajes planetarios modelado para impresión 3D, con tolerancias de ensamble.</p></div>
+        <div class="specs"><span>Fusion 360</span><span>Impresión FDM</span></div>
+      </article>
+      <article class="card" data-cat="figura">
+        <div class="render"><span class="chip fig label">Figura</span><span class="ph label">Render del proyecto</span></div>
+        <div class="card-body"><h3>Personaje articulado</h3><p>Figura de colección con articulaciones funcionales, esculpida y preparada para resina.</p></div>
+        <div class="specs"><span>ZBrush</span><span>Blender</span><span>Resina</span></div>
+      </article>
+      <article class="card" data-cat="mecanico">
+        <div class="render"><span class="chip mec label">Mecánico</span><span class="ph label">Render del proyecto</span></div>
+        <div class="card-body"><h3>Bisagra paramétrica</h3><p>Componente ajustable mediante parámetros, pensado para distintos espesores de material.</p></div>
+        <div class="specs"><span>SolidWorks</span><span>Plano técnico</span></div>
+      </article>
+      <article class="card" data-cat="figura">
+        <div class="render"><span class="chip fig label">Figura</span><span class="ph label">Render del proyecto</span></div>
+        <div class="card-body"><h3>Busto estilizado</h3><p>Exploración de escultura digital y materiales en render fotorrealista.</p></div>
+        <div class="specs"><span>Blender</span><span>Cycles</span></div>
+      </article>
+      <article class="card" data-cat="mecanico">
+        <div class="render"><span class="chip mec label">Mecánico</span><span class="ph label">Render del proyecto</span></div>
+        <div class="card-body"><h3>Despiece de mecanismo</h3><p>Vista explosionada de un ensamble con todas sus piezas y uniones.</p></div>
+        <div class="specs"><span>Fusion 360</span><span>Animación</span></div>
+      </article>
+      <article class="card" data-cat="figura">
+        <div class="render"><span class="chip fig label">Figura</span><span class="ph label">Render del proyecto</span></div>
+        <div class="card-body"><h3>Criatura mecánica</h3><p>Figura que mezcla escultura orgánica con piezas mecánicas modeladas.</p></div>
+        <div class="specs"><span>Blender</span><span>Fusion 360</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="proceso" class="alt">
+  <div class="wrap">
+    <div class="sec-head"><div><p class="label">02 — Proceso</p><h2>Cómo trabajo</h2></div></div>
+    <div class="process">
+      <div class="step s1"><div class="n">01</div><h3>Boceto</h3><p>Ideas a mano y referencias para definir forma, función y proporción.</p></div>
+      <div class="step s2"><div class="n">02</div><h3>Modelado</h3><p>CAD paramétrico para piezas mecánicas y escultura digital para figuras.</p></div>
+      <div class="step s3"><div class="n">03</div><h3>Ajuste</h3><p>Tolerancias, ensambles y pruebas para que cada pieza encaje de verdad.</p></div>
+      <div class="step s4"><div class="n">04</div><h3>Salida</h3><p>Render final, plano técnico o archivo listo para impresión 3D.</p></div>
+    </div>
+
+    <p class="label tools-title">Herramientas</p>
+    <div class="tools">
+      <span class="tool">Blender<small>figuras · render</small></span>
+      <span class="tool">Fusion 360<small>CAD</small></span>
+      <span class="tool">SolidWorks<small>CAD</small></span>
+      <span class="tool">ZBrush<small>escultura</small></span>
+      <span class="tool">KeyShot<small>render</small></span>
+      <span class="tool">Impresión 3D<small>FDM · resina</small></span>
+    </div>
+  </div>
+</section>
+
+<section id="sobre-mi">
+  <div class="wrap about">
+    <div class="portrait label">Tu foto</div>
+    <div>
+      <p class="label" style="color:var(--red)">03 — Sobre mí</p>
+      <h2>Entre la forma y el mecanismo.</h2>
+      <p>Soy estudiante de diseño y me especializo en modelado 3D. Me interesa el punto donde lo estético se cruza con lo funcional: figuras con carácter y piezas que encajan y se mueven.</p>
+      <p style="color:var(--grey)">[Aquí va un párrafo tuyo: dónde estudias, qué te motiva, qué tipo de proyectos buscas.]</p>
+      <div class="facts">
+        <div><b>12+</b><span>Modelos</span></div>
+        <div><b>4</b><span>Años de diseño</span></div>
+        <div><b>3</b><span>Piezas impresas</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contacto" class="contact">
+  <div class="wrap">
+    <p class="label">04 — Contacto</p>
+    <h2>¿Armamos algo juntos?</h2>
+    <div class="contact-links">
+      <a class="btn y" href="mailto:tucorreo@ejemplo.com">tucorreo@ejemplo.com</a>
+      <a class="btn" href="#">Instagram</a>
+      <a class="btn" href="#">Behance</a>
+      <a class="btn" href="#">LinkedIn</a>
+    </div>
+  </div>
+</section>
+<footer><div class="wrap label"><span>© 2026 Tu Nombre</span><span>Diseño y modelado 3D</span></div></footer>
+
+<script>
+  // Contorno del engranaje del inicio
+  function gear(cx, cy, teeth, rOut, rIn){
+    const pts=[], step=Math.PI*2/teeth;
+    for(let i=0;i<teeth;i++){
+      const a=i*step;
+      [[rIn,a],[rIn,a+step*.12],[rOut,a+step*.28],[rOut,a+step*.62],[rIn,a+step*.78]]
+        .forEach(([r,t])=>pts.push((cx+r*Math.cos(t)).toFixed(2)+','+(cy+r*Math.sin(t)).toFixed(2)));
+    }
+    return 'M'+pts.join(' L')+' Z';
+  }
+  document.getElementById('gear').setAttribute('d', gear(270,130,14,82,66));
+
+  // Filtro de proyectos
+  document.querySelectorAll('.filters button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('.filters button').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      const f=b.dataset.f;
+      document.querySelectorAll('.card').forEach(c=>c.classList.toggle('hide', f!=='todos' && c.dataset.cat!==f));
+    });
+  });
+</script>
+</body>
+</html>
